@@ -1,0 +1,62 @@
+孤影峡谷 3D · 第三方资源与许可
+=====================================
+
+1. 角色模型与动画
+   KayKit - Character Pack : Adventurers
+   作者：Kay Lousberg (www.kaylousberg.com)
+   许可证：CC0 1.0 Universal（可商用、无需署名）
+   来源：https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0
+   本地文件：v3/assets/models/*.glb
+   完整许可见：v3/assets/models/LICENSE-kaykit.txt
+
+2. 3D 引擎与加载器
+   three.js r147
+   许可证：MIT
+   Copyright © 2010-2022 three.js authors
+   本地文件：v3/vendor/three.min.js、GLTFLoader.js、SkeletonUtils.js
+   https://threejs.org
+
+3. 游戏代码与玩法设计
+   本项目原创（孤影峡谷 3D），未使用任何《王者荣耀》或其它商业游戏的
+   代码、美术、音频资源。玩法仅参考通用 MOBA 规则。
+
+4. 技能特效实现参考
+   LinearAbiltyCastingThreeJS
+   作者：mohamedachrefelouafi
+   许可证：MIT
+   来源：https://github.com/achrefelouafi/LinearAbiltyCastingThreeJS
+   说明：本项目参考其程序化冰晶、闪电、光束、陨星、瞄准线等视觉思路，
+   在 v3/js/vfx3d.js 中重新实现为适配本游戏的轻量版本；未复制该项目
+   的角色模型、贴图或音频。
+
+   MIT License
+   Copyright (c) 2026 mohamedachrefelouafi
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+5. 音效
+   全部由 WebAudio 实时合成，无外部音频文件。
+
+6. 未整合的参考项目
+   以下项目因许可证缺失、引擎不兼容或包含商业游戏素材而未复制代码或资源：
+   - Xuedixuedi/ArenaofValor：代码为 MIT，但包含《王者荣耀》角色形象与语音，
+     仅参考通用技能机制，不复制任何素材。
+   - bytemode/ArenaOfValor、iOSDevLog/ArenaofValor、CodingCodingK/UnityMobaDemo：
+     未提供明确开源许可证，未使用。
+   - wqaetly/NKGMobaBasedOnET、sn0wbroken/OpenMOBA、yasgamesdev/OpenMOBA：
+     代码为 MIT，但基于 Unity/UE4，无法嵌入本项目的轻量 WebView 运行时；
+     仅参考架构思路。
+   - miyu/OpenMOBA：未提供明确开源许可证，未使用。

@@ -1,0 +1,32 @@
+# Build outputs
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+.gradle/
+**/build/
+*.apk
+*.aab
+
+# Release binaries live in GitHub Releases, not in git history
+apk/
+
+# Local test captures
+v3/shots/
+
+# Dependencies / caches
+node_modules/
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Legacy 2D prototype at the repository root (the 3D game lives in v3/)
+/index.html
+/css/
+/js/
+/启动2D版.cmd
+/启动3D版.cmd

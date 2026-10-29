@@ -1,0 +1,378 @@
+/* ================= 触控布局 / 设置 / 立绘 ================= */
+:root {
+  --joy-size: 140px;
+  --joy-opacity: 0.8;
+  --skill-btn-size: 58px;
+  --skill-opacity: 0.95;
+  --attack-size: 94px;
+  --minimap-scale: 1;
+  --joy-off-x: 0px;
+  --joy-off-y: 0px;
+  --skill-off-x: 0px;
+  --skill-off-y: 0px;
+  --attack-off-x: 0px;
+  --attack-off-y: 0px;
+}
+
+/* 技能冷却扫光 */
+.skill .cd-mask {
+  border-radius: 50%;
+  background: rgba(0,0,0,0.62);
+  background: conic-gradient(rgba(0,0,0,0.78) calc(var(--cd, 0) * 360deg), rgba(0,0,0,0.06) 0);
+}
+.skill { overflow: hidden; }
+.skill.dragging {
+  border-color: #ffe6a8 !important;
+  box-shadow: 0 0 18px rgba(232,195,122,0.4), inset 0 0 16px rgba(232,195,122,0.12) !important;
+  filter: brightness(1.16);
+}
+
+/* 拖拽取消施法 */
+.skill-cancel {
+  position: absolute; z-index: 7; right: 88px;
+  bottom: calc(var(--attack-size) + var(--skill-btn-size) * 2.05 + 36px);
+  width: 154px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  border: 1.5px dashed rgba(255, 150, 150, 0.5);
+  background: rgba(36, 8, 12, 0.52);
+  color: rgba(255, 190, 190, 0.9);
+  font-size: 11px; letter-spacing: 0.08em;
+  pointer-events: none; visibility: hidden; opacity: 0;
+  transform: translateY(8px) scale(0.94);
+  transition: opacity 0.12s ease, transform 0.12s ease, background 0.12s ease;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+}
+.skill-cancel.show { visibility: visible; opacity: 1; transform: translateY(0) scale(1); }
+.skill-cancel.armed {
+  color: #fff; border-color: #ffd4d4;
+  background: rgba(196, 38, 58, 0.82);
+  box-shadow: 0 0 26px rgba(255, 70, 90, 0.45);
+  transform: scale(1.06);
+}
+.skill-cancel-icon {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: grid; place-items: center; flex: none;
+  border: 1px solid currentColor; font-size: 17px; line-height: 1;
+}
+body.left-hand .skill-cancel { right: auto; left: 88px; }
+@media (max-height: 500px) {
+  .skill-cancel {
+    right: 70px; bottom: calc(var(--attack-size) + var(--skill-btn-size) * 1.9 + 22px);
+    width: 132px; height: 44px; font-size: 10px;
+  }
+  body.left-hand .skill-cancel { left: 70px; }
+}
+
+/* 大招瞬时曝光与低血量压迫感 */
+.skill-flash {
+  position: fixed; inset: 0; z-index: 46; pointer-events: none;
+  opacity: 0; background: #fff; mix-blend-mode: screen;
+}
+#screen-game::after {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  box-shadow: inset 0 0 0 rgba(190, 30, 50, 0);
+  transition: box-shadow 0.35s ease;
+}
+body.low-hp #screen-game::after {
+  box-shadow: inset 0 0 100px 0 rgba(190, 26, 46, 0.38);
+}
+
+.menu-actions { display: flex; gap: 10px; align-items: center; justify-content: center; }
+.joystick, .attack-btn { display: none; }
+.fps-meter {
+  display: none; position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
+  z-index: 3; padding: 3px 8px; border-radius: 6px;
+  background: rgba(4,8,11,0.6); border: 1px solid rgba(255,255,255,0.08);
+  color: #a9e5b8; font-size: 10px; letter-spacing: 0.06em;
+}
+body.show-fps .fps-meter { display: block; }
+
+/* 头像立绘 */
+.card-emblem img, .detail-emblem img, .hero-avatar img, .ally-face img {
+  width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%;
+}
+.card-emblem, .detail-emblem, .hero-avatar, .ally-face { overflow: hidden; }
+.hero-avatar img { border-radius: 50%; }
+
+/* ---------- 触屏布局 ---------- */
+body.touch-ui .hud-bottom { display: contents; }
+body.touch-ui .hud-actions { display: none; }
+body.touch-ui .hint { display: none; }
+body.touch-ui .passive-badge { display: none; }
+
+body.touch-ui .hero-plate {
+  position: absolute; left: 16px; bottom: calc(var(--joy-size) + 30px);
+  width: 258px; min-width: 0; padding: 8px 10px; gap: 9px; z-index: 2;
+}
+body.touch-ui .hero-avatar { width: 44px; height: 44px; font-size: 18px; flex: none; }
+body.touch-ui .hero-avatar b { width: 18px; height: 18px; font-size: 9px; right: -4px; bottom: -4px; }
+body.touch-ui .hero-bars { min-width: 0; }
+body.touch-ui .hero-name-row { font-size: 11px; }
+body.touch-ui .hero-name-row span:last-child { font-size: 9px; }
+body.touch-ui .bar { height: 10px; }
+body.touch-ui .bar.mana { height: 6px; }
+body.touch-ui .bar.xp { height: 3px; }
+
+.joystick {
+  position: absolute; left: 18px; bottom: 18px; width: var(--joy-size); height: var(--joy-size);
+  border-radius: 50%; z-index: 5; touch-action: none; opacity: var(--joy-opacity);
+  transform: translate(var(--joy-off-x, 0px), var(--joy-off-y, 0px));
+  background:
+    radial-gradient(circle at 50% 50%, rgba(180,220,255,0.08) 0 28%, transparent 29%),
+    radial-gradient(circle at 50% 50%, rgba(8,14,20,0.5) 0 58%, rgba(8,14,20,0.22) 59% 100%);
+  border: 1.5px solid rgba(220,235,255,0.22);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45), inset 0 0 26px rgba(120,180,255,0.08);
+  user-select: none;
+}
+body.touch-ui .joystick { display: block; }
+body.tap-move .joystick { display: none; }
+.joy-ring {
+  position: absolute; inset: 14%; border-radius: 50%;
+  border: 1px dashed rgba(220,235,255,0.16);
+}
+.joy-knob {
+  position: absolute; left: 28%; top: 28%; width: 44%; height: 44%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 36% 30%, rgba(255,255,255,0.8), rgba(120,190,255,0.55) 32%, rgba(20,50,80,0.85) 80%);
+  border: 1px solid rgba(220,240,255,0.55);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5), 0 0 18px rgba(74,168,255,0.25);
+  will-change: transform;
+}
+.joy-label {
+  position: absolute; left: 0; right: 0; bottom: 7%; text-align: center;
+  font-size: 9px; letter-spacing: 0.18em; color: rgba(220,235,255,0.55);
+  pointer-events: none;
+}
+body.left-hand .joystick { left: auto; right: 18px; }
+
+body.touch-ui .skill-dock {
+  position: absolute; right: 16px; bottom: 16px; z-index: 4;
+  width: calc(var(--attack-size) + var(--skill-btn-size) * 2.8);
+  height: calc(var(--attack-size) + var(--skill-btn-size) * 2.05);
+  display: block; margin: 0; pointer-events: none;
+  transform: translate(var(--skill-off-x, 0px), var(--skill-off-y, 0px));
+}
+body.touch-ui .skill-dock .skill {
+  position: absolute; width: var(--skill-btn-size); height: var(--skill-btn-size);
+  border-radius: 50%; margin: 0; padding: 0; opacity: var(--skill-opacity);
+  transform: translate(-50%, -50%); pointer-events: auto; touch-action: none;
+  border: 1.5px solid rgba(232,195,122,0.45);
+  background: radial-gradient(circle at 35% 28%, rgba(80,68,42,0.95), rgba(10,11,9,0.97));
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4), inset 0 0 16px rgba(232,195,122,0.05);
+}
+body.touch-ui .skill-dock .skill[data-skill="0"] { left: 12%; top: 60%; }
+body.touch-ui .skill-dock .skill[data-skill="1"] { left: 33%; top: 28%; }
+body.touch-ui .skill-dock .skill[data-skill="2"] { left: 62%; top: 10%; }
+body.touch-ui .skill-dock .skill .key {
+  position: absolute; top: 3px; left: 6px; font-size: 8px; padding: 0 2px;
+}
+body.touch-ui .skill-dock .skill .sname {
+  font-size: 8px; margin-top: 7px; max-width: 84%; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+body.touch-ui .skill-dock .skill .mana-cost { font-size: 7px; bottom: 3px; right: 5px; }
+body.touch-ui .skill-dock .skill .cd-text { font-size: 15px; }
+body.touch-ui .skill-dock .skill.cooling .cd-mask { display: block; }
+body.touch-ui .skill-dock .skill.cooling .sname { opacity: 0.15; }
+
+.attack-btn {
+  position: absolute; left: 78%; top: 75%;
+  transform: translate(calc(-50% + var(--attack-off-x, 0px)), calc(-50% + var(--attack-off-y, 0px)));
+  width: var(--attack-size); height: var(--attack-size); border-radius: 50%;
+  align-items: center; justify-content: center; flex-direction: column; gap: 1px;
+  color: #241a0c; border: 2px solid rgba(255,240,200,0.8);
+  background: radial-gradient(circle at 35% 28%, #ffe6a8, #d4a75a 58%, #8f6a2e 100%);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45), 0 0 22px rgba(232,195,122,0.3);
+  font-size: 13px; font-weight: 800; letter-spacing: 0.08em;
+  pointer-events: auto; touch-action: none; opacity: var(--skill-opacity);
+  cursor: pointer; padding: 0;
+}
+body.touch-ui .attack-btn { display: flex; }
+body.hide-attack .attack-btn { display: none !important; }
+.attack-btn::before {
+  content: ''; position: absolute; inset: 8px; border-radius: 50%;
+  border: 1px solid rgba(90,60,20,0.35);
+}
+.attack-btn:active {
+  transform: translate(calc(-50% + var(--attack-off-x, 0px)), calc(-50% + var(--attack-off-y, 0px))) scale(0.95);
+}
+body.left-hand .skill-dock {
+  right: auto; left: 16px;
+  transform: translate(var(--skill-off-x, 0px), var(--skill-off-y, 0px)) scaleX(-1);
+}
+body.left-hand .skill-dock .skill { transform: translate(-50%, -50%) scaleX(-1); }
+body.left-hand .skill-dock .attack-btn {
+  transform: translate(calc(-50% + var(--attack-off-x, 0px)), calc(-50% + var(--attack-off-y, 0px))) scaleX(-1);
+}
+body.left-hand .hero-plate { left: auto; right: 16px; }
+
+/* 触屏时左上队友面板与血量条错开 */
+@media (max-height: 500px) {
+  body.touch-ui .hero-plate { width: 210px; padding: 6px 8px; gap: 7px; bottom: calc(var(--joy-size) + 20px); }
+  body.touch-ui .hero-avatar { width: 34px; height: 34px; font-size: 15px; }
+  body.touch-ui .hero-name-row { font-size: 10px; }
+  body.touch-ui .bar { height: 8px; }
+  body.touch-ui .bar.mana { height: 5px; }
+  body.touch-ui .ally-panel { max-height: 128px; overflow: hidden; }
+}
+
+/* 小地图缩放 */
+.minimap-wrap { transform: scale(var(--minimap-scale, 1)); transform-origin: top right; }
+
+/* ---------- 设置面板 ---------- */
+.settings-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  display: grid; place-items: center;
+  background: rgba(3,6,9,0.74); backdrop-filter: blur(9px);
+}
+.settings-card {
+  width: min(900px, 94vw); max-height: 92vh;
+  display: flex; flex-direction: column;
+  background: linear-gradient(180deg, rgba(20,27,34,0.985), rgba(8,12,16,0.99));
+  border: 1px solid rgba(232,195,122,0.24); border-radius: 16px;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.65);
+}
+.settings-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 22px; border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.settings-head h2 { font-size: 22px; letter-spacing: 0.16em; color: var(--gold-strong); }
+.settings-head .muted { font-size: 10px; }
+.settings-head .close { margin-left: auto; }
+.settings-body {
+  flex: 1; min-height: 0; overflow: auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px 26px;
+  padding: 14px 22px 20px;
+}
+.settings-section { min-width: 0; }
+.settings-section h3 {
+  font-size: 11px; letter-spacing: 0.14em; color: var(--gold);
+  padding: 10px 0 6px; border-bottom: 1px solid rgba(232,195,122,0.14); margin-bottom: 4px;
+}
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 38px; padding: 5px 0; border-bottom: 1px dashed rgba(255,255,255,0.045);
+}
+.setting-row .setting-label { font-size: 12px; color: #d7cebc; }
+.setting-row .setting-hint { display: block; font-size: 9px; color: rgba(151,160,170,0.6); margin-top: 2px; }
+.setting-control { display: flex; align-items: center; gap: 8px; flex: none; }
+.setting-control input[type="range"] {
+  width: 128px; accent-color: #d9b06a; height: 4px; cursor: pointer;
+}
+.setting-control .val { min-width: 40px; text-align: right; font-size: 10px; color: var(--gold); }
+.segmented { display: flex; border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; overflow: hidden; }
+.segmented button {
+  border: none; background: transparent; color: var(--muted);
+  padding: 6px 10px; font-size: 10px; cursor: pointer; letter-spacing: 0.04em;
+}
+.segmented button.active { background: rgba(232,195,122,0.18); color: var(--gold-strong); font-weight: 700; }
+.switch {
+  width: 42px; height: 22px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.4); position: relative; cursor: pointer; padding: 0;
+}
+.switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+  border-radius: 50%; background: #7a8390; transition: transform 0.15s ease, background 0.15s ease;
+}
+.switch.on { background: rgba(232,195,122,0.25); border-color: rgba(232,195,122,0.4); }
+.switch.on::after { transform: translateX(20px); background: #ffe2a6; }
+.setting-action {
+  border: 1px solid rgba(232,195,122,0.32); background: rgba(232,195,122,0.08);
+  color: var(--gold-strong); border-radius: 7px; padding: 5px 14px;
+  font-size: 10px; letter-spacing: 0.06em; cursor: pointer;
+}
+.setting-action:active { background: rgba(232,195,122,0.2); }
+.layout-editor {
+  position: fixed; inset: 0; z-index: 55; pointer-events: none;
+  background: radial-gradient(circle at 50% 60%, rgba(4,8,12,0.06), rgba(2,4,7,0.42));
+}
+.layout-editor.hidden { display: none; }
+.layout-bar {
+  pointer-events: auto; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  width: min(760px, 94vw); display: flex; align-items: center; gap: 14px;
+  padding: 10px 16px; border-radius: 12px;
+  background: rgba(9,14,19,0.92); border: 1px solid rgba(232,195,122,0.32);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.55); backdrop-filter: blur(8px);
+}
+.layout-bar .layout-copy { min-width: 0; }
+.layout-bar b { display: block; color: var(--gold-strong); font-size: 13px; letter-spacing: 0.1em; }
+.layout-bar span { display: block; color: var(--muted); font-size: 9px; margin-top: 2px; }
+.layout-bar .layout-actions { margin-left: auto; display: flex; gap: 8px; flex: none; }
+.layout-bar .btn { padding: 7px 16px; font-size: 11px; }
+body.layout-editing .joystick,
+body.layout-editing .skill-dock .skill,
+body.layout-editing .attack-btn {
+  outline: 2px dashed rgba(255,220,150,0.9); outline-offset: 3px;
+  filter: drop-shadow(0 0 12px rgba(232,195,122,0.35));
+}
+body.layout-editing #pause-overlay { display: none !important; }
+body.layout-editing .joystick,
+body.layout-editing .skill-dock,
+body.layout-editing .skill-dock .skill,
+body.layout-editing .attack-btn { touch-action: none; }
+body.layout-editing .joystick,
+body.layout-editing .skill-dock .skill,
+body.layout-editing .attack-btn { cursor: move; }
+body.layout-editing .joystick { pointer-events: auto; }
+body.layout-editing .skill-dock { pointer-events: auto; }
+body.layout-editing .skill-dock .skill,
+body.layout-editing .attack-btn { pointer-events: auto; }
+
+.settings-foot {
+  display: flex; gap: 10px; justify-content: flex-end;
+  padding: 12px 22px; border-top: 1px solid rgba(255,255,255,0.06);
+}
+@media (max-height: 640px) and (orientation: landscape) {
+  .settings-body { grid-template-columns: 1fr 1fr; padding: 6px 16px 8px; gap: 0 18px; }
+  .settings-head { padding: 10px 16px; }
+  .settings-head h2 { font-size: 18px; }
+  .settings-section h3 { padding: 5px 0 3px; margin-bottom: 2px; }
+  .setting-row { min-height: 26px; padding: 1px 0; }
+  .setting-row .setting-label { font-size: 11px; }
+  .setting-row .setting-hint { display: none; }
+  .setting-control input[type="range"] { width: 100px; }
+  .settings-foot { padding: 8px 16px; }
+}
+@media (max-width: 760px) and (orientation: landscape) {
+  .settings-body { grid-template-columns: 1fr; }
+}
+
+.joystick { pointer-events: auto; }
+body.hide-ally .ally-panel { display: none; }
+body.touch-ui .skill-dock .skill { touch-action: none; }
+
+.sb-hero i { background-size: cover; background-position: center 30%; }
+.ally-face img, .hero-avatar img, .detail-emblem img, .card-emblem img { pointer-events: none; }
+
+.new-chip {
+  display: inline-block; margin-left: 5px; padding: 0 4px;
+  border-radius: 4px; border: 1px solid rgba(127,220,255,0.5);
+  color: #bdefff; font-size: 8px; font-style: normal; vertical-align: 2px;
+  background: rgba(127,220,255,0.12);
+}
+
+/* 桌面/大屏选人页满高度 */
+@media (min-height: 641px) {
+  #screen-select.active { display: flex; flex-direction: column; overflow: hidden; }
+  .select-head { flex: none; }
+  .select-body {
+    flex: 1; min-height: 0; width: 100%; max-width: 1460px; margin: 0 auto;
+    display: grid; grid-template-columns: 390px 1fr; gap: 22px;
+    padding: 20px 34px; overflow: auto;
+  }
+  .select-left { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+  .hero-preview-panel { flex: 0 0 252px; }
+  .select-left .hero-detail { flex: 1; min-height: 0; overflow: auto; position: static; align-self: stretch; }
+  .select-right { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  .lineup-preview { flex: none; }
+  .hero-grid { flex: 0 0 auto; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: auto; }
+  .hero-card { display: flex; flex-direction: column; min-height: 168px; }
+  .card-kit { margin-top: auto; }
+  .select-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1 1 auto; min-height: 120px; }
+  .info-tile { padding: 14px 16px; }
+  .info-tile b { font-size: 12px; }
+  .info-tile span { font-size: 11px; }
+  .select-footer { flex: none; }
+}

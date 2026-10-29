@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>孤影峡谷 3D · 5v5 离线 MOBA</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/hud3d.css">
+<link rel="stylesheet" href="css/controls.css">
+</head>
+<body>
+<div id="app">
+  <div id="loading" class="loading">
+    <div class="loading-card">
+      <div class="loading-mark">孤</div>
+      <h2>正在载入峡谷</h2>
+      <div class="loading-bar"><i id="load-fill"></i></div>
+      <p id="load-text">准备 3D 战场…</p>
+      <p id="load-hint" class="load-hint">首次载入需要几秒</p>
+    </div>
+  </div>
+
+  <!-- 主菜单 -->
+  <section id="screen-menu" class="screen active">
+    <div class="menu-bg">
+      <span class="orb o1"></span>
+      <span class="orb o2"></span>
+      <span class="orb o3"></span>
+      <span class="beam"></span>
+    </div>
+    <div class="menu-content">
+      <div class="title-mark"><span>孤</span></div>
+      <h1 class="game-title">孤影峡谷</h1>
+      <p class="game-sub">SHADOWRIFT ARENA 3D</p>
+      <p class="game-tag">5v5 三路野区 · 无需登录 · 全英雄解锁</p>
+      <div class="menu-actions">
+        <button id="btn-start" class="btn btn-primary" disabled>开始游戏</button>
+        <button id="btn-settings-menu" class="btn btn-ghost">设置</button>
+      </div>
+      <div class="feature-row">
+        <span>5v5 三路 + 野区</span>
+        <span>3D 骨骼动画</span>
+        <span>完全离线</span>
+      </div>
+    </div>
+    <p class="menu-foot">原创玩法 · 美术 KayKit (CC0) · 引擎 three.js (MIT) · 本地运行</p>
+  </section>
+
+  <!-- 选人 -->
+  <section id="screen-select" class="screen">
+    <header class="select-head">
+      <button id="btn-back-menu" class="btn btn-ghost">返回</button>
+      <div class="select-title">
+        <h2>选择英雄</h2>
+        <p class="sub">全部英雄已解锁 · 队友与敌人由 AI 补位 · 5v5 三路</p>
+      </div>
+      <div class="select-head-right">
+        <div id="difficulty-group" class="difficulty-group" title="敌方英雄强度">
+          <span>难度</span>
+          <button data-diff="easy">轻松</button>
+          <button data-diff="normal" class="active">标准</button>
+          <button data-diff="hard">凶悍</button>
+        </div>
+        <button id="btn-settings-select" class="btn btn-ghost">设置</button>
+        <button id="btn-random" class="btn btn-ghost">随机英雄</button>
+        <button id="btn-enter" class="btn btn-primary">进入峡谷</button>
+      </div>
+    </header>
+    <div class="select-body">
+      <div class="select-left">
+        <div id="hero-preview-panel" class="hero-preview-panel">
+          <canvas id="hero-preview"></canvas>
+          <span class="preview-label">英雄预览 · 自动展示</span>
+        </div>
+        <aside id="hero-detail" class="hero-detail"></aside>
+      </div>
+      <div class="select-right">
+        <div id="lineup-preview" class="lineup-preview"></div>
+        <div id="hero-grid" class="hero-grid"></div>
+        <div class="select-info">
+          <div class="info-tile"><b>三路 + 打野</b><span>上中下三路推进，队友与敌人由 AI 补位</span></div>
+          <div class="info-tile"><b>暴君争夺</b><span>2:00 刷新，击杀后全队获得强化</span></div>
+          <div class="info-tile"><b>推塔规则</b><span>打穿一路内塔后，敌方水晶才可被攻击</span></div>
+          <div class="info-tile"><b>操作提示</b><span>摇杆移动 · 点技能施放 · 拖动瞄准 · 普攻锁定</span></div>
+        </div>
+        <div class="select-footer">
+          <span>点击卡片切换英雄</span>
+          <span>难度影响敌方属性与反应</span>
+          <span>5v5 三路 · 暴君 · 全英雄解锁</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 对局 -->
+  <section id="screen-game" class="screen">
+    <div id="scene"></div>
+
+    <div class="hud">
+      <div class="hud-top">
+        <div class="hud-pill" id="hud-timer">0:00</div>
+        <div class="hud-pill hud-score">
+          <span class="score-blue">0</span>
+          <b>:</b>
+          <span class="score-red">0</span>
+        </div>
+        <div class="hud-pill hud-gold">金币 <b id="hud-gold">0</b></div>
+        <div class="hud-top-right">
+          <div class="minimap-wrap">
+            <canvas id="minimap" width="220" height="220"></canvas>
+            <span class="minimap-label">Tab / 点击查看战况</span>
+          </div>
+          <div class="hud-btns">
+            <button id="btn-scoreboard" class="hud-btn">战况</button>
+            <button id="btn-shop" class="hud-btn">商店<kbd>B</kbd></button>
+            <button id="btn-mute" class="hud-btn">音效</button>
+            <button id="btn-pause" class="hud-btn">暂停</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="ally-panel" class="ally-panel"></div>
+      <div id="killfeed" class="killfeed"></div>
+      <div id="kill-banner" class="kill-banner"></div>
+
+      <div class="hud-bottom">
+        <div class="hero-plate">
+          <div class="hero-avatar" id="hero-avatar">
+            <span id="hero-emblem">雷</span>
+            <b id="hero-level">1</b>
+          </div>
+          <div class="hero-bars">
+            <div class="hero-name-row">
+              <span id="hero-name">雷恩</span>
+              <span id="hero-role">上路</span>
+            </div>
+            <div class="bar hp"><i id="hp-fill"></i><span id="hp-text"></span></div>
+            <div class="bar mana"><i id="mana-fill"></i><span id="mana-text"></span></div>
+            <div class="bar xp"><i id="xp-fill"></i></div>
+          </div>
+        </div>
+
+        <div class="skill-dock" id="skill-dock">
+          <div class="passive-badge" id="passive-badge">被动</div>
+          <button class="skill" data-skill="0">
+            <span class="key">Q</span><span class="sname"></span><span class="mana-cost"></span>
+            <div class="cd-mask"></div><span class="cd-text"></span>
+          </button>
+          <button class="skill" data-skill="1">
+            <span class="key">W</span><span class="sname"></span><span class="mana-cost"></span>
+            <div class="cd-mask"></div><span class="cd-text"></span>
+          </button>
+          <button class="skill" data-skill="2">
+            <span class="key">E</span><span class="sname"></span><span class="mana-cost"></span>
+            <div class="cd-mask"></div><span class="cd-text"></span>
+          </button>
+          <button id="btn-attack" class="attack-btn" aria-label="普攻"><span>普攻</span></button>
+        </div>
+
+        <div class="hud-actions">
+          <button id="btn-shop-bottom" class="hud-btn">商店 B</button>
+          <div class="hint">左键移动/攻击 · Q W E 技能 · 滚轮缩放 · Tab 记分板</div>
+        </div>
+      </div>
+
+      <div id="joystick" class="joystick">
+        <div class="joy-ring"></div>
+        <div id="joystick-knob" class="joy-knob"></div>
+        <span class="joy-label">移动</span>
+      </div>
+      <div id="skill-cancel" class="skill-cancel" aria-hidden="true">
+        <span class="skill-cancel-icon">×</span>
+        <span class="skill-cancel-label">拖到此处取消</span>
+      </div>
+      <div id="fps-meter" class="fps-meter">60 FPS</div>
+
+      <div id="respawn-banner" class="respawn hidden"></div>
+      <div id="toast" class="toast hidden"></div>
+    </div>
+
+    <div id="shop-panel" class="shop-panel hidden">
+      <div class="panel-head">
+        <h3>战场补给</h3>
+        <span id="shop-gold">金币 0</span>
+        <button id="btn-shop-close" class="close" aria-label="关闭商店">×</button>
+      </div>
+      <div id="shop-items" class="shop-items"></div>
+      <p class="shop-note">升级立即生效 · 最多叠加 5 层</p>
+    </div>
+
+    <div id="scoreboard" class="scoreboard hidden">
+      <div class="scoreboard-card">
+        <div class="panel-head">
+          <h3>战况</h3>
+          <span class="scoreboard-tip">按住 Tab 查看 · 松开关闭</span>
+        </div>
+        <div id="scoreboard-body"></div>
+      </div>
+    </div>
+
+    <div id="pause-overlay" class="overlay hidden">
+      <div class="overlay-card">
+        <h2>暂停</h2>
+        <p class="muted">5v5 · 三路战场暂时停歇</p>
+        <div class="overlay-actions">
+          <button id="btn-resume" class="btn btn-primary">继续游戏</button>
+          <button id="btn-restart" class="btn btn-ghost">重新开始</button>
+          <button id="btn-quit" class="btn btn-ghost">返回选人</button>
+          <button id="btn-settings-pause" class="btn btn-ghost">设置</button>
+          <button id="btn-sound" class="btn btn-ghost">音效：开</button>
+          <button id="btn-quality" class="btn btn-ghost">画质：高清</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="result-overlay" class="overlay hidden">
+      <div class="overlay-card result-card">
+        <h2 id="result-title">胜利</h2>
+        <p id="result-sub" class="muted"></p>
+        <div id="result-stats" class="result-stats"></div>
+        <div class="overlay-actions">
+          <button id="btn-again" class="btn btn-primary">再来一局</button>
+          <button id="btn-result-select" class="btn btn-ghost">返回选人</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="settings-overlay" class="settings-overlay hidden">
+  <div class="settings-card">
+    <div class="settings-head">
+      <h2>设置</h2>
+      <span class="muted">修改会立即生效并保存在本机</span>
+      <button id="btn-settings-close" class="close" aria-label="关闭设置">×</button>
+    </div>
+    <div id="settings-body" class="settings-body"></div>
+    <div class="settings-foot">
+      <button id="btn-settings-reset" class="btn btn-ghost">恢复默认</button>
+      <button id="btn-settings-done" class="btn btn-primary">完成</button>
+    </div>
+  </div>
+</div>
+
+<div id="layout-editor" class="layout-editor hidden">
+  <div class="layout-bar">
+    <div class="layout-copy">
+      <b>自定义按键位置</b>
+      <span>拖动摇杆、技能区或普攻键调整位置 · 松手即保存 · 对局暂停中</span>
+    </div>
+    <div class="layout-actions">
+      <button id="btn-layout-reset" class="btn btn-ghost">重置位置</button>
+      <button id="btn-layout-done" class="btn btn-primary">完成调整</button>
+    </div>
+  </div>
+</div>
+
+<script src="vendor/three.min.js"></script>
+<script src="vendor/GLTFLoader.js"></script>
+<script src="vendor/SkeletonUtils.js"></script>
+<script src="js/data.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/assets.js"></script>
+<script src="js/preview.js"></script>
+<script src="js/portraits.js"></script>
+<script src="js/view.js"></script>
+<script src="js/vfx3d.js"></script>
+<script src="js/entities.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/game.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/touch-ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
