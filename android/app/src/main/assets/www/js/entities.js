@@ -146,6 +146,9 @@ class Unit3 {
       const cls = (opts.source && opts.source.isPlayer) ? 'player' : (this.type === 'hero' ? '' : '');
       game.view.damageText(this.x, (this.height || 100) * (this.type === 'hero' ? 1.05 : 0.85), this.y, String(Math.round(dmg)), cls);
       game.view.burst(this.x, this.y, '#ffd9a0', this.type === 'hero' ? 6 : 3, 120);
+      if (this.isPlayer && dmg >= 20) {
+        game.view.shake = Math.min(15, Math.max(game.view.shake, 2 + dmg * 0.06));
+      }
       if (this.rig) { this.rig.flash(); this.rig.playHit(); }
       if (this.type === 'hero' || this.type === 'tower' || this.type === 'base') game.sfx('hit');
     }
@@ -223,6 +226,9 @@ class Hero3D extends Unit3 {
     this.aiAimJitter = 45;
     this.recentKills = [];
     this.stormHits = 0;
+    this.introTimer = 0;
+    this.introDuration = 0.8;
+    this.footTimer = 0;
 
     this.recalcStats();
     this.hp = this.maxHp;
@@ -239,6 +245,11 @@ class Hero3D extends Unit3 {
       ally: team === game.playerTeam, player: isPlayer
     });
     game.view.addNameplate(this);
+    if (isPlayer) {
+      this.introTimer = this.introDuration;
+      this.rig.root.scale.setScalar(0.05);
+      game.view.spawnPillar(this.x, this.y, cssColor(def.color));
+    }
 
     this.aiTimer = rand(0.3, 0.8);
     this.aiSkillTimer = rand(0.5, 1.1);
@@ -336,6 +347,14 @@ class Hero3D extends Unit3 {
     this.gainGold(2.6 * dt);
     this.mana = Math.min(this.maxMana, this.mana + this.manaRegen * dt);
 
+    if (this.introTimer > 0) {
+      this.introTimer = Math.max(0, this.introTimer - dt);
+      const t = 1 - this.introTimer / this.introDuration;
+      const s = 0.25 + 0.75 * (1 - Math.pow(1 - t, 3));
+      this.rig.root.scale.setScalar(s);
+      if (this.introTimer <= 0) this.rig.root.scale.setScalar(1);
+    }
+
     this.rig.setPosition(this.x, this.y);
     const stunned = this.isStunned();
     if (stunned) {
@@ -364,6 +383,14 @@ class Hero3D extends Unit3 {
       const d = dist(this.x, this.y, this.moveTarget.x, this.moveTarget.y);
       if (d < 14) this.moveTarget = null;
       else moving = this.stepToward(this.moveTarget.x, this.moveTarget.y, dt);
+    }
+
+    if (this.isPlayer && moving && this.introTimer <= 0) {
+      this.footTimer -= dt;
+      if (this.footTimer <= 0) {
+        this.footTimer = 0.27;
+        g.view.footDust(this.x, this.y, cssColor(this.def.color));
+      }
     }
 
     this.attackTimer -= dt;
@@ -406,6 +433,9 @@ class Hero3D extends Unit3 {
     this.faceToward(target.x, target.y);
     this.lastCombatAt = this.game.time;
     this.rig.playAttack();
+    if (this.isPlayer && this.def.range > 150) {
+      this.game.view.burst(this.x, this.y, cssColor(this.def.color), 4, 90);
+    }
 
     let dmg = this.getAD();
     const nextHit = this.buffs.find(b => b.kind === 'nextHit' && this.game.time < b.until);
@@ -473,6 +503,7 @@ class Hero3D extends Unit3 {
     this.lastCombatAt = g.time;
     this.rig.playCast();
     g.view.ring(this.x, this.y, s.range || 120, cssColor(this.def.color), 0.5, 6);
+    g.view.burst(this.x, this.y, cssColor(this.def.color), this.isPlayer ? 10 : 5, this.isPlayer ? 150 : 100);
     g.sfx('skill');
     return true;
   }
@@ -504,7 +535,9 @@ class Hero3D extends Unit3 {
     this.aiState = 'lane';
     this.wp = g.spawnWaypointFor(this);
     this.jungleGoal = null;
+    this.introTimer = this.introDuration;
     this.rig.reviveAt(this.x, this.y);
+    this.rig.root.scale.setScalar(0.25);
     if (this.bar) this.bar.group.visible = true;
     if (g.view.spawnPillar) g.view.spawnPillar(this.x, this.y, cssColor(this.def.color));
     g.view.ring(this.x, this.y, 100, 0xffe9a3, 0.6, 10);

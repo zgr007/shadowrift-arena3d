@@ -4,9 +4,9 @@
 
 > 本项目不是《王者荣耀》或任何商业游戏的修改版，不包含其代码、角色形象、美术或音频素材。玩法参考通用 MOBA 规则。
 
-**最新版本：v1.4** · 8 名原创英雄 · 三路 + 野区 · 触控操作 · 技能拖拽取消
+**最新版本：v1.5** · 8 名原创英雄 · 画面/动画升级 · 三路 + 野区 · 触控操作 · 技能拖拽取消
 
-[下载最新 APK](https://github.com/zgr007/shadowrift-arena3d/releases/latest) · [查看 Release v1.4](https://github.com/zgr007/shadowrift-arena3d/releases/tag/v1.4)
+[下载最新 APK](https://github.com/zgr007/shadowrift-arena3d/releases/latest) · [查看 Release v1.5](https://github.com/zgr007/shadowrift-arena3d/releases/tag/v1.5)
 
 ## 特性
 
@@ -15,12 +15,16 @@
 - **完整战斗系统**：补兵、经验、等级、金币、商店、装备、冷却、法力、眩晕/减速/护盾、复活与难度选择。
 - **王者式触控**：左下摇杆，右下 Q/W/E 弧形技能轮盘 + 大号普攻；拖动瞄准、快速施法、自动普攻、左手模式。
 - **技能取消**：拖动技能后进入右上“拖到此处取消”区域松手，立即中断施法，不扣蓝、不进冷却；支持左手布局、Esc 与 Android 返回键取消。
-- **自定义布局**：设置内可拖动调整摇杆、技能区和普攻键位置；支持大小、透明度、镜头缩放、渲染分辨率、帧率上限等 20+ 项设置。
+- **自定义布局**：设置内可拖动调整摇杆、技能区和普攻键位置；支持大小、透明度、镜头缩放、渲染分辨率、角色轮廓光、帧率上限等 24 项设置。
+- **画面升级**：角色轮廓光、软阴影、电影感暗角；冰晶改为分面晶体，闪电增加分支，天雷光柱增加冲击环；支持高清阴影与渲染分辨率调节。
+- **动画反馈**：玩家登场光柱与缩放、阵亡灵魂、重生光柱、脚步尘土、冲刺落地、施法爆发、受击镜头震动，以及护盾/队旗动态。
 - **技能特效**：程序化冰晶、闪电、天雷光柱、陨星、地面裂纹、焦痕、瞄准线、弹道拖尾与屏幕闪光。
 - **角色立绘**：运行时从 CC0 低模实时渲染，不依赖网络图片；用于选人卡、HUD、队友栏和计分板。
 - **完全离线**：不需要账号或网络服务；Android 仅使用 loopback 本地服务器加载 APK 内资源。
 
 ## 截图
+
+![高清战场画面](docs/screenshots/battlefield.png)
 
 | 英雄选择 | 霜翎 · 永冻风暴 |
 | --- | --- |
@@ -100,7 +104,7 @@ gradle :app:assembleDebug
 - 本项目原创代码：MIT，详见 [LICENSE](LICENSE)。
 - 角色模型/动画：KayKit Character Pack – Adventurers，CC0，详见 [v3/assets/models/LICENSE-kaykit.txt](v3/assets/models/LICENSE-kaykit.txt)。
 - three.js：MIT。
-- 技能特效视觉思路参考 `LinearAbiltyCastingThreeJS`（MIT），本项目为独立重写实现；完整说明见 [v3/CREDITS.txt](v3/CREDITS.txt)。
+- 技能特效视觉思路参考 `LinearAbiltyCastingThreeJS`（MIT），分面冰晶几何移植并适配自该项目，其余效果为独立重写；完整说明见 [v3/CREDITS.txt](v3/CREDITS.txt)。
 
 ## 免责声明
 

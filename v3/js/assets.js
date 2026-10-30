@@ -5,6 +5,23 @@ const MODEL_FILES = ['Barbarian', 'Knight', 'Mage', 'Rogue', 'Rogue_Hooded'];
 const MODEL_TARGET_HEIGHT = 140;
 const MODEL_YAW_OFFSET = 0;
 
+const BLOB_TEX = (() => {
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const x = c.getContext('2d');
+  const g = x.createRadialGradient(64, 64, 3, 64, 64, 62);
+  g.addColorStop(0, 'rgba(0,0,0,0.6)');
+  g.addColorStop(0.5, 'rgba(0,0,0,0.3)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = g;
+  x.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c);
+  t.encoding = THREE.sRGBEncoding;
+  return t;
+})();
+const BLOB_GEO = new THREE.CircleGeometry(44, 28);
+const BLOB_MAT = new THREE.MeshBasicMaterial({ map: BLOB_TEX, transparent: true, opacity: 0.34, depthWrite: false, toneMapped: false });
+
 const Assets = {
   gltfs: {},
   portraits: {},
@@ -153,6 +170,12 @@ class ModelRig {
     glow.position.y = 3.1;
     this.root.add(glow);
     this.groundGlow = glow;
+    const blob = new THREE.Mesh(BLOB_GEO, BLOB_MAT);
+    blob.rotation.x = -Math.PI / 2;
+    blob.position.y = 2.55;
+    blob.renderOrder = -1;
+    this.root.add(blob);
+    this.blobShadow = blob;
 
     // 眩晕 / 护盾 / 增益
     this.stunGroup = new THREE.Group();
@@ -207,6 +230,25 @@ class ModelRig {
   _prepareMaterial(m) {
     if (!m) return m;
     const mat = m.clone();
+    const rimColor = new THREE.Color(this.isPlayer ? 0xffd166 : TEAM_COLORS[this.team].hex);
+    mat.onBeforeCompile = (shader) => {
+      shader.uniforms.uRimColor = { value: rimColor };
+      shader.uniforms.uRimStrength = ModelRig.rimStrength;
+      shader.fragmentShader = `uniform vec3 uRimColor;
+uniform float uRimStrength;
+` + shader.fragmentShader;
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <normal_fragment_begin>',
+        `#include <normal_fragment_begin>
+float vfxRim = pow(1.0 - clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0), 2.2);`
+      );
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <dithering_fragment>',
+        `#include <dithering_fragment>
+gl_FragColor.rgb += uRimColor * vfxRim * uRimStrength;`
+      );
+    };
+    mat.customProgramCacheKey = () => 'shadowrift-rim-v1';
     if (mat.emissive) {
       mat.userData.baseEmissive = mat.emissive.getHex();
       mat.userData.baseEmissiveIntensity = mat.emissiveIntensity === undefined ? 1 : mat.emissiveIntensity;
@@ -312,6 +354,7 @@ class ModelRig {
     this.ring.visible = false;
     this.ringDisc.visible = false;
     this.groundGlow.visible = false;
+    this.blobShadow.visible = false;
     this.flagGroup.visible = false;
   }
 
@@ -326,6 +369,7 @@ class ModelRig {
     this.ring.visible = true;
     this.ringDisc.visible = true;
     this.groundGlow.visible = true;
+    this.blobShadow.visible = true;
     this.flagGroup.visible = true;
     this.root.position.y = 0;
     this._applyLocomotion(true);
@@ -371,6 +415,12 @@ class ModelRig {
       });
     }
     if (this.shieldBubble.visible !== !!shielded) this.shieldBubble.visible = !!shielded;
+    if (this.shieldBubble.visible) {
+      const pulse = 1 + Math.sin(performance.now() * 0.006) * 0.045;
+      this.shieldBubble.scale.setScalar(pulse);
+      this.shieldBubble.material.opacity = 0.13 + Math.sin(performance.now() * 0.005) * 0.04;
+    }
+    if (this.flag) this.flag.rotation.y = Math.sin(performance.now() * 0.0035 + this.facing) * 0.22;
     if (this.buffRing.visible !== !!buffed) this.buffRing.visible = !!buffed;
     if (buffed && this.buffRing.visible) {
       this.buffRing.material.opacity = 0.35 + Math.sin(performance.now() * 0.006) * 0.18;
@@ -382,3 +432,5 @@ class ModelRig {
     this.root.parent && this.root.parent.remove(this.root);
   }
 }
+
+ModelRig.rimStrength = { value: 0.7 };

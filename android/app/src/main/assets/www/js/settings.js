@@ -16,6 +16,7 @@ const Settings = {
     cameraZoom: 90,
     graphics: 'smooth',
     renderScale: 90,
+    heroRim: true,
     fpsLimit: 60,
     showFps: false,
     damageNumbers: true,
@@ -128,6 +129,9 @@ const Settings = {
     root.style.setProperty('--minimap-scale', clamp(d.minimapScale, 70, 130) / 100);
     this.applyLayout();
 
+    if (typeof ModelRig !== 'undefined' && ModelRig.rimStrength) {
+      ModelRig.rimStrength.value = d.heroRim ? 0.7 : 0;
+    }
     if (typeof Sfx !== 'undefined') {
       Sfx.enabled = !!d.soundOn;
       Sfx.setVolume(clamp(d.volume, 0, 100) / 100);

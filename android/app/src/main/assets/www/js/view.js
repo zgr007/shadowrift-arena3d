@@ -1033,6 +1033,8 @@ View3D.prototype.dashFx = function (x1, y1, x2, y2, color) {
     group: mesh,
     update: (e, k) => { mat.opacity = k * 0.5; }
   }, 0.3);
+  if (this.footDust) this.footDust(x2, y2, color);
+  this.burst(x2, y2, color, 5, 90);
 };
 
 View3D.prototype.burst = function (x, y, color, count, speed) {

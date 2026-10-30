@@ -174,6 +174,7 @@ const TouchUI = {
           { key: 'renderScale', label: '渲染分辨率', type: 'range', min: 70, max: 100, step: 5, unit: '%' },
           { key: 'fpsLimit', label: '帧率上限', type: 'seg', options: [[30, '30'], [60, '60'], [0, '不限']] },
           { key: 'showFps', label: '显示 FPS', type: 'toggle' },
+          { key: 'heroRim', label: '角色轮廓光', type: 'toggle' },
           { key: 'damageNumbers', label: '伤害飘字', type: 'toggle' },
           { key: 'screenShake', label: '屏幕震动', type: 'toggle' },
           { key: 'minimapScale', label: '小地图缩放', type: 'range', min: 80, max: 120, step: 5, unit: '%' }

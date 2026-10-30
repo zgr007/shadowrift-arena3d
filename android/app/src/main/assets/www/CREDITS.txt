@@ -25,9 +25,10 @@
    作者：mohamedachrefelouafi
    许可证：MIT
    来源：https://github.com/achrefelouafi/LinearAbiltyCastingThreeJS
-   说明：本项目参考其程序化冰晶、闪电、光束、陨星、瞄准线等视觉思路，
-   在 v3/js/vfx3d.js 中重新实现为适配本游戏的轻量版本；未复制该项目
-   的角色模型、贴图或音频。
+   说明：v3/js/vfx3d.js 中的分面冰晶几何（createCrystalGeometry / hash11）
+   移植并适配自该项目的 src/assets/ProceduralGeometry.js 与 utils/math.js；
+   闪电分支、光束冲击环、陨星、瞄准线等为本项目独立重写。未复制该项目的
+   角色模型、贴图或音频。
 
    MIT License
    Copyright (c) 2026 mohamedachrefelouafi

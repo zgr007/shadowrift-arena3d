@@ -846,6 +846,7 @@ class Game3D {
       }
       this.view.burst(unit.x, unit.y, '#ffdfae', 26, 260);
       this.view.ring(unit.x, unit.y, 80, 0xffe9a3, 0.6, 8);
+      if (this.view.deathWisp) this.view.deathWisp(unit.x, unit.y, cssColor(unit.def.color));
       this.sfx('death');
       const allDead = this.heroes.filter(h => h.team === unit.team).every(h => h.dead);
       if (allDead && this.time - this.lastAceAt > 8) {

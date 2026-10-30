@@ -69,6 +69,12 @@ body.left-hand .skill-cancel { right: auto; left: 88px; }
   position: fixed; inset: 0; z-index: 46; pointer-events: none;
   opacity: 0; background: #fff; mix-blend-mode: screen;
 }
+#screen-game::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 46%, transparent 52%, rgba(0,0,0,0.32) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.22), transparent 16%, transparent 82%, rgba(0,0,0,0.24));
+}
 #screen-game::after {
   content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   box-shadow: inset 0 0 0 rgba(190, 30, 50, 0);

@@ -41,6 +41,7 @@ const Portraits3D = {
         rig.ring.visible = false;
         rig.ringDisc.visible = false;
         rig.groundGlow.visible = false;
+        if (rig.blobShadow) rig.blobShadow.visible = false;
         rig.root.rotation.y = 0.22;
         holder.add(rig.root);
         rig.setLocomotion(false);
